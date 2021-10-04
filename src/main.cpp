@@ -113,17 +113,20 @@ uint8_t getSegCode(uint8_t seg) {
 }
 
 uint8_t getPixelCode(uint8_t pixel) {
-	switch (pixel)
+	switch (pixel) {
+	case GROUND_STRIP_LEN ... GROUND_STRIP_LEN + BORDER_STRIP_LEN:
+		return getSegCode(pixel - GROUND_STRIP_LEN + 25);
 	default:
 		return getSegCode(pixel + 1);
+	}
 }
 
-uint32_t getPixelColor(uint8_t pixel) {
+uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel* strip) {
 	uint8_t code = getPixelCode(pixel);
 	switch (code) {
-	case 1: return ground.Color(32, 0, 0);
-	case 2: return ground.Color(0, 0, 32);
-	case 3: return ground.Color(32, 0, 32);
+	case 1: return strip->ColorHSV(32, 0, 0);
+	case 2: return strip->Color(0, 0, 32);
+	case 3: return strip->Color(32, 0, 32);
 		break;
 
 	default:
@@ -133,13 +136,18 @@ uint32_t getPixelColor(uint8_t pixel) {
 
 void updateStrips() {
 	for (uint8_t pixel = 0; pixel < GROUND_STRIP_LEN; pixel++) {
-		ground.setPixelColor(pixel, getPixelColor(pixel));
+		ground.setPixelColor(pixel, getPixelColor(pixel, &ground));
+	}
+	for (uint8_t pixel = 0; pixel < BORDER_STRIP_LEN; pixel++) {
+		border.setPixelColor(pixel, getPixelColor(GROUND_STRIP_LEN + pixel, &border));
 	}
 	ground.show();
+	border.show();
 }
 
 void loop() {
 	updateStrips();
 	display.print();
 	display.update();
+	step++;
 }

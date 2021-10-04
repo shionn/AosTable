@@ -31,13 +31,15 @@ PROGMEM const uint8_t DATA_SCENARIO[] = {
     0b01000001, 0b01000001, 0b10101010, 0b10101010,
 };
 
-
-
 class Data
 {
 private:
 public:
     uint8_t scenario = 0;
+    uint16_t playerAh, playerBh, groundh, borderh;
+    uint8_t  playerAs, playerBs, grounds, borders;
+    uint8_t  playerAv, playerBv, groundv, borderv;
+
     /* data */
 public:
 };
