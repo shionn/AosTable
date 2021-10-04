@@ -125,6 +125,31 @@ uint8_t getPixelCode(uint8_t pixel) {
     return getSegCode(pixel + 1);
   }
 }
+uint32_t map(uin8_t s,uin8_t e,uint32_t cs,uint32_t ce) {
+  uint8_t r1 = (cs & 0xff0000) >> 16;
+  uint8_t g1 = (cs & 0x00ff00) >> 8;
+  uint8_t b1 = (cs & 0x0000ff);
+  uint8_t r2 = (ce & 0xff0000) >> 16;
+  uint8_t g2 = (ce & 0x00ff00) >> 8;
+  uint8_t b2 = (ce & 0x0000ff);   
+  uint8_t r = map(step, s, e, r1, r2);
+  uint8_t g = map(step, s, e, g1, g2);
+  uint8_t b = map(step, s, e, b1, b2);
+    return r << 16 | g << 8 | b;
+}
+
+uint32_t pulse(uint32_t[4] colors) {
+  switch (step) {
+      case 0: return colors[0];
+      case 1...63: return map(0,64, colors[0],colors[1]);
+      case 64: return colors[1];
+      case 65...127: return map(64,128, colors[1],colors[2]);
+      case 128: return colors[2];
+      case 129...195: return map(128,196, colors[2],colors[3]);
+      case 196: return colors[3];
+      case 197...255: return map(196,255, colors[0],colors[1]);
+  }
+}
 
 uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
   uint8_t code = getPixelCode(pixel);
