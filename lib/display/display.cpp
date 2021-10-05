@@ -29,10 +29,11 @@ void Display::print() {
   drawBorder();
 
   switch (mode) {
+
   case MODE_SELECT_MAP:
     drawGrid();
     for (uint8_t y = 0; y < 4; y++) {
-      uint8_t t = pgm_read_byte(&(DATA_SCENARIO[data->scenario * 4 + y]));
+      uint8_t t = pgm_read_byte(&(DATA_SCENARIO[data->scenario() * 4 + y]));
       for (uint8_t x = 0; x < 4; x++) {
         if (((t >> (x * 2)) & 0b00000011) == 0b000000001) {
           lcd.print(x * 32 + 14, y * 16 + 3, F("A"));
@@ -43,6 +44,15 @@ void Display::print() {
       }
     }
     break;
+  case MODE_SELECT_STRIP_ANIM:
+    lcd.print(0, 8 * cursor + 2, F(">"));
+  case MODE_SELECT_GROUND_ANIM:
+  case MODE_SELECT_BORDER_ANIM:
+    lcd.print(6, 2, F("Sol"));
+    // lcd.print(90, 2, ) ;
+    lcd.print(6, 10, F("Bordure"));
+    break;
+
   case MODE_SELECT_BG:
     lcd.print(0, 8 * cursor + 2, F(">"));
   case MODE_GROUND_H:
@@ -95,6 +105,7 @@ void Display::print() {
     lcd.print(6, 10, F("Choix Scenario"));
     lcd.print(6, 18, F("Couleur Joueurs"));
     lcd.print(6, 26, F("Couleur Ambiance"));
+    lcd.print(6, 34, F("Animation"));
   }
 
   lcd.display();
@@ -108,7 +119,7 @@ void Display::update() {
 
   switch (mode) {
   case MODE_SELECT_MAP:
-    data->scenario = map(analog, 0, 1023, 0, 20);
+    data->scenario(map(analog, 0, 1023, 0, 20));
     if (press) {
       mode = MODE_MAIN;
     }
@@ -195,7 +206,7 @@ void Display::update() {
     break;
 
   case MODE_MAIN:
-    cursor = map(analog, 0, 1023, 0, 4);
+    cursor = map(analog, 0, 1023, 0, 5);
     if (press) {
       mode = MODE_SCORE + cursor;
     }

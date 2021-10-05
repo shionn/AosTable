@@ -13,20 +13,24 @@
 #define MODE_SELECT_MAP 2
 #define MODE_SELECT_COLOR 3
 #define MODE_SELECT_BG 4
+#define MODE_SELECT_STRIP_ANIM 5
 
-#define MODE_JOUEUR_A_H 5
-#define MODE_JOUEUR_A_S 6
-#define MODE_JOUEUR_A_V 7
-#define MODE_JOUEUR_B_H 8
-#define MODE_JOUEUR_B_S 9
-#define MODE_JOUEUR_B_V 10
+#define MODE_JOUEUR_A_H 6
+#define MODE_JOUEUR_A_S 7
+#define MODE_JOUEUR_A_V 8
+#define MODE_JOUEUR_B_H 9
+#define MODE_JOUEUR_B_S 10
+#define MODE_JOUEUR_B_V 11
 
-#define MODE_GROUND_H 11
-#define MODE_GROUND_S 12
-#define MODE_GROUND_V 13
-#define MODE_BORDER_H 14
-#define MODE_BORDER_S 15
-#define MODE_BORDER_V 16
+#define MODE_GROUND_H 12
+#define MODE_GROUND_S 13
+#define MODE_GROUND_V 14
+#define MODE_BORDER_H 15
+#define MODE_BORDER_S 16
+#define MODE_BORDER_V 17
+
+#define MODE_SELECT_GROUND_ANIM 18
+#define MODE_SELECT_BORDER_ANIM 19
 
 class Display {
 private:

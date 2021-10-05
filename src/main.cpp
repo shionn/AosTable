@@ -101,7 +101,7 @@ PROGMEM const uint8_t STRIP_DATA_B[]{
 uint8_t getSegCode(uint8_t seg) {
   uint8_t iA = 0;
   uint8_t iB = 0;
-  for (uint8_t i = 0; i < data.scenario; i++) {
+  for (uint8_t i = 0; i < data.scenario(); i++) {
     iA += pgm_read_byte(&(STRIP_DATA_A[iA])) + 1;
     iB += pgm_read_byte(&(STRIP_DATA_B[iB])) + 1;
   }
@@ -187,7 +187,17 @@ uint32_t pulse(uint8_t code, Adafruit_NeoPixel *strip) {
 
 uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
   uint8_t code = getPixelCode(pixel);
-  return pulse(code, strip);
+  uint8_t mode = data.groundMode();
+  if (pixel > GROUND_STRIP_LEN)
+    mode = data.borderMode();
+
+  switch (mode) {
+  default:
+  case STRIP_MODE_PULSE:
+    return pulse(code, strip);
+  case STRIP_MODE_CHENILL:
+    return pulse(code, strip);
+  }
 }
 
 void updateStrips() {
