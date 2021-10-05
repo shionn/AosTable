@@ -2,6 +2,7 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
+#include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 
 #define BORDER_STRIP_LEN 8
@@ -34,6 +35,7 @@ class HSV {
 public:
   uint16_t h, s, v;
   HSV(uint16_t h, uint8_t s, uint8_t v);
+  uint32_t hsv(Adafruit_NeoPixel *strip);
 };
 
 class Data {

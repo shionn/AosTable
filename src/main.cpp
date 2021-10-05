@@ -125,47 +125,54 @@ uint8_t getPixelCode(uint8_t pixel) {
     return getSegCode(pixel + 1);
   }
 }
-uint32_t map(uin8_t s,uin8_t e,uint32_t cs,uint32_t ce) {
+uint32_t map(uint8_t s, uint8_t e, uint32_t cs, uint32_t ce) {
   uint8_t r1 = (cs & 0xff0000) >> 16;
   uint8_t g1 = (cs & 0x00ff00) >> 8;
   uint8_t b1 = (cs & 0x0000ff);
   uint8_t r2 = (ce & 0xff0000) >> 16;
   uint8_t g2 = (ce & 0x00ff00) >> 8;
-  uint8_t b2 = (ce & 0x0000ff);   
-  uint8_t r = map(step, s, e, r1, r2);
-  uint8_t g = map(step, s, e, g1, g2);
+  uint8_t b2 = (ce & 0x0000ff);
+  uint32_t r = map(step, s, e, r1, r2);
+  uint16_t g = map(step, s, e, g1, g2);
   uint8_t b = map(step, s, e, b1, b2);
-    return r << 16 | g << 8 | b;
+  return r << 16 | g << 8 | b;
 }
 
-uint32_t pulse(uint32_t[4] colors) {
+uint32_t pulse(uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4) {
   switch (step) {
-      case 0: return colors[0];
-      case 1...63: return map(0,64, colors[0],colors[1]);
-      case 64: return colors[1];
-      case 65...127: return map(64,128, colors[1],colors[2]);
-      case 128: return colors[2];
-      case 129...195: return map(128,196, colors[2],colors[3]);
-      case 196: return colors[3];
-      case 197...255: return map(196,255, colors[0],colors[1]);
+  case 0:
+    return c1;
+  case 1 ... 63:
+    return map(0, 64, c1, c2);
+  case 64:
+    return c2;
+  case 65 ... 127:
+    return map(64, 128, c2, c3);
+  case 128:
+    return c3;
+  case 129 ... 195:
+    return map(128, 196, c3, c4);
+  case 196:
+    return c4;
+  case 197 ... 255:
+    return map(196, 255, c4, c1);
   }
 }
+
+uint32_t pulse(uint32_t c1, uint32_t c2) { return pulse(c1, c2, c1, c2); }
 
 uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
   uint8_t code = getPixelCode(pixel);
   switch (code) {
   case 1:
-    return strip->ColorHSV(data.playerA.h, data.playerA.s, data.playerA.v);
+    return pulse(data.playerA.hsv(strip), data.ground.hsv(strip));
   case 2:
-    return strip->ColorHSV(data.playerB.h, data.playerB.s, data.playerB.v);
+    return pulse(data.playerB.hsv(strip), data.ground.hsv(strip));
   case 3:
-    return strip->ColorHSV((data.playerA.h >> 1) + (data.playerB.h >> 1),
-                           (data.playerA.s >> 1) + (data.playerB.s >> 1),
-                           (data.playerA.v >> 1) + (data.playerB.v >> 1));
-    break;
-
+    return pulse(data.playerA.hsv(strip), data.ground.hsv(strip),
+                 data.playerB.hsv(strip), data.ground.hsv(strip));
   default:
-    return 0x00000000;
+    return data.ground.hsv(strip);
   }
 }
 
