@@ -21,6 +21,13 @@
 #define MODE_JOUEUR_B_S 9
 #define MODE_JOUEUR_B_V 10
 
+#define MODE_GROUND_H 11
+#define MODE_GROUND_S 12
+#define MODE_GROUND_V 13
+#define MODE_BORDER_H 14
+#define MODE_BORDER_S 15
+#define MODE_BORDER_V 16
+
 class Display {
 private:
   Ssd1309 lcd = Ssd1309(10, 9, 8);

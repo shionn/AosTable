@@ -43,7 +43,28 @@ void Display::print() {
       }
     }
     break;
-
+  case MODE_SELECT_BG:
+    lcd.print(0, 8 * cursor + 2, F(">"));
+  case MODE_GROUND_H:
+  case MODE_GROUND_S:
+  case MODE_GROUND_V:
+  case MODE_BORDER_H:
+  case MODE_BORDER_S:
+  case MODE_BORDER_V:
+    lcd.print(6, 2, F("Teinte Sol"));
+    lcd.print(6, 10, F("Satur. Sol"));
+    lcd.print(6, 18, F("Brill. Sol"));
+    lcd.print(108, 2, String(data->ground.h >> 10));
+    lcd.print(108, 10, String(data->ground.s));
+    lcd.print(108, 18, String(data->ground.v));
+    lcd.print(6, 26, F("Teinte Bordure"));
+    lcd.print(6, 34, F("Satur. Bordure"));
+    lcd.print(6, 42, F("Brill. Bordure"));
+    lcd.print(108, 26, String(data->border.h >> 10));
+    lcd.print(108, 34, String(data->border.s));
+    lcd.print(108, 42, String(data->border.v));
+    lcd.print(6, 50, F("Retour"));
+    break;
   case MODE_SELECT_COLOR:
     lcd.print(0, 8 * cursor + 2, F(">"));
   case MODE_JOUEUR_A_H:
@@ -93,6 +114,55 @@ void Display::update() {
     }
     break;
 
+  case MODE_SELECT_BG:
+    cursor = map(analog, 0, 1023, 0, 7);
+    if (press) {
+      if (cursor == 6)
+        mode = MODE_MAIN;
+      else
+        mode = MODE_GROUND_H + cursor;
+    }
+    break;
+  case MODE_GROUND_H:
+    data->ground.h = analog << 6;
+    if (press)
+      mode = MODE_SELECT_BG;
+    break;
+  case MODE_GROUND_S:
+    data->ground.s = analog >> 2;
+    if (press)
+      mode = MODE_SELECT_BG;
+    break;
+  case MODE_GROUND_V:
+    data->ground.v = analog >> 2;
+    if (press)
+      mode = MODE_SELECT_BG;
+    break;
+  case MODE_BORDER_H:
+    data->ground.h = analog << 6;
+    if (press)
+      mode = MODE_SELECT_BG;
+    break;
+  case MODE_BORDER_S:
+    data->ground.s = analog >> 2;
+    if (press)
+      mode = MODE_SELECT_BG;
+    break;
+  case MODE_BORDER_V:
+    data->ground.v = analog >> 2;
+    if (press)
+      mode = MODE_SELECT_BG;
+    break;
+
+  case MODE_SELECT_COLOR:
+    cursor = map(analog, 0, 1023, 0, 7);
+    if (press) {
+      if (cursor == 6)
+        mode = MODE_MAIN;
+      else
+        mode = MODE_JOUEUR_A_H + cursor;
+    }
+    break;
   case MODE_JOUEUR_A_H:
     data->playerA.h = analog << 6;
     if (press)
@@ -122,15 +192,6 @@ void Display::update() {
     data->playerB.v = analog >> 2;
     if (press)
       mode = MODE_SELECT_COLOR;
-    break;
-  case MODE_SELECT_COLOR:
-    cursor = map(analog, 0, 1023, 0, 7);
-    if (press) {
-      if (cursor == 6)
-        mode = MODE_MAIN;
-      else
-        mode = MODE_JOUEUR_A_H + cursor;
-    }
     break;
 
   case MODE_MAIN:

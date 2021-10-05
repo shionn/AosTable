@@ -105,7 +105,7 @@ uint8_t getSegCode(uint8_t seg) {
     iA += pgm_read_byte(&(STRIP_DATA_A[iA])) + 1;
     iB += pgm_read_byte(&(STRIP_DATA_B[iB])) + 1;
   }
-  uint8_t result = 0;
+  uint8_t result = seg > GROUND_STRIP_LEN ? 4 : 0;
   for (uint8_t i = 0; i < pgm_read_byte(&(STRIP_DATA_A[iA])); i++) {
     if (pgm_read_byte(&(STRIP_DATA_A[iA + i + 1])) == seg)
       result += 1;
@@ -161,9 +161,11 @@ uint32_t pulse(uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4) {
 
 uint32_t pulse(uint32_t c1, uint32_t c2) { return pulse(c1, c2, c1, c2); }
 
-uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
-  uint8_t code = getPixelCode(pixel);
+uint32_t pulse(uint8_t code, Adafruit_NeoPixel *strip) {
   switch (code) {
+  default:
+  case 0:
+    return data.ground.hsv(strip);
   case 1:
     return pulse(data.playerA.hsv(strip), data.ground.hsv(strip));
   case 2:
@@ -171,9 +173,21 @@ uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
   case 3:
     return pulse(data.playerA.hsv(strip), data.ground.hsv(strip),
                  data.playerB.hsv(strip), data.ground.hsv(strip));
-  default:
-    return data.ground.hsv(strip);
+  case 4:
+    return data.border.hsv(strip);
+  case 5:
+    return pulse(data.playerA.hsv(strip), data.border.hsv(strip));
+  case 6:
+    return pulse(data.playerB.hsv(strip), data.border.hsv(strip));
+  case 7:
+    return pulse(data.playerA.hsv(strip), data.border.hsv(strip),
+                 data.playerB.hsv(strip), data.border.hsv(strip));
   }
+}
+
+uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
+  uint8_t code = getPixelCode(pixel);
+  return pulse(code, strip);
 }
 
 void updateStrips() {

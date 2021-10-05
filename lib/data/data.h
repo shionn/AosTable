@@ -41,10 +41,10 @@ public:
 class Data {
 private:
 public:
-  uint8_t scenario = 0;
+  uint8_t scenario = 3;
   HSV playerA = HSV(0, 255, 32);
   HSV playerB = HSV(170 << 8, 255, 32);
-  HSV ground = HSV(0, 0, 32);
+  HSV ground = HSV(0, 0, 0);
   HSV border = HSV(0, 0, 32);
 
 public:
