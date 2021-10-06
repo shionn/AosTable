@@ -4,9 +4,10 @@
 
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
+#include <color.h>
 
-#define BORDER_STRIP_LEN 8
-#define GROUND_STRIP_LEN 8
+#define BORDER_STRIP_LEN 10
+#define GROUND_STRIP_LEN 100
 
 #define STRIP_MODE_PULSE 0
 #define STRIP_MODE_CHENILL 1
@@ -44,24 +45,23 @@ public:
 
 class Data {
 private:
-  // 0b00001111 : scenario
   // 0b00110000 : strip ground
   // 0b11000000 : strip border
   uint8_t mode = 0b00000011;
 
 public:
+  uint8_t scenario = 3;
   HSV playerA = HSV(0, 255, 32);
   HSV playerB = HSV(170 << 8, 255, 32);
   HSV ground = HSV(0, 0, 0);
   HSV border = HSV(0, 0, 32);
 
 public:
-  uint8_t scenario();
-  void scenario(uint8_t scenario);
   uint8_t groundMode();
   void groundMode(uint8_t ground);
   uint8_t borderMode();
   void borderMode(uint8_t border);
+  uint32_t bothPlayerHsv(Adafruit_NeoPixel *strip);
 };
 
 #endif

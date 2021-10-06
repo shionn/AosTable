@@ -24,6 +24,18 @@ void Display::drawGrid() {
   }
 }
 
+String Display::getAnimName(uint8_t anim) {
+  switch (anim) {
+  default:
+  case STRIP_MODE_PULSE:
+    return F("Pulse");
+  case STRIP_MODE_CHENILL:
+    return F("Chenille");
+  case STRIP_MODE_RAIN:
+    return F("Pluie");
+  }
+}
+
 void Display::print() {
   lcd.clearBuffer();
   drawBorder();
@@ -33,7 +45,7 @@ void Display::print() {
   case MODE_SELECT_MAP:
     drawGrid();
     for (uint8_t y = 0; y < 4; y++) {
-      uint8_t t = pgm_read_byte(&(DATA_SCENARIO[data->scenario() * 4 + y]));
+      uint8_t t = pgm_read_byte(&(DATA_SCENARIO[data->scenario * 4 + y]));
       for (uint8_t x = 0; x < 4; x++) {
         if (((t >> (x * 2)) & 0b00000011) == 0b000000001) {
           lcd.print(x * 32 + 14, y * 16 + 3, F("A"));
@@ -49,8 +61,10 @@ void Display::print() {
   case MODE_SELECT_GROUND_ANIM:
   case MODE_SELECT_BORDER_ANIM:
     lcd.print(6, 2, F("Sol"));
-    // lcd.print(90, 2, ) ;
+    lcd.print(50, 2, getAnimName(data->groundMode()));
     lcd.print(6, 10, F("Bordure"));
+    lcd.print(50, 10, getAnimName(data->borderMode()));
+    lcd.print(6, 18, F("Retour"));
     break;
 
   case MODE_SELECT_BG:
@@ -118,11 +132,33 @@ void Display::update() {
   analog = (analog * 4 + analogRead(A0)) / 5;
 
   switch (mode) {
+
   case MODE_SELECT_MAP:
-    data->scenario(map(analog, 0, 1023, 0, 20));
+    data->scenario = map(analog, 0, 1023, 0, 20);
     if (press) {
       mode = MODE_MAIN;
     }
+    break;
+
+  case MODE_SELECT_STRIP_ANIM:
+    cursor = map(analog, 0, 1023, 0, 3);
+    if (press) {
+      if (cursor == 2)
+        mode = MODE_MAIN;
+      else
+        mode = MODE_SELECT_GROUND_ANIM + cursor;
+    }
+    break;
+
+  case MODE_SELECT_GROUND_ANIM:
+    data->groundMode(map(analog, 0, 1023, 0, 3));
+    if (press)
+      mode = MODE_SELECT_STRIP_ANIM;
+    break;
+  case MODE_SELECT_BORDER_ANIM:
+    data->borderMode(map(analog, 0, 1023, 0, 3));
+    if (press)
+      mode = MODE_SELECT_STRIP_ANIM;
     break;
 
   case MODE_SELECT_BG:

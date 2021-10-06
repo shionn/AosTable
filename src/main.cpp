@@ -1,6 +1,8 @@
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 
+#include <MemoryFree.h>
+#include <color.h>
 #include <data.h>
 #include <display.h>
 
@@ -47,6 +49,7 @@ void setup() {
     ground.show();
     delay(50);
   }
+  Serial.println(freeMemory());
 }
 
 PROGMEM const uint8_t STRIP_DATA_A[]{
@@ -101,7 +104,7 @@ PROGMEM const uint8_t STRIP_DATA_B[]{
 uint8_t getSegCode(uint8_t seg) {
   uint8_t iA = 0;
   uint8_t iB = 0;
-  for (uint8_t i = 0; i < data.scenario(); i++) {
+  for (uint8_t i = 0; i < data.scenario; i++) {
     iA += pgm_read_byte(&(STRIP_DATA_A[iA])) + 1;
     iB += pgm_read_byte(&(STRIP_DATA_B[iB])) + 1;
   }
@@ -125,43 +128,32 @@ uint8_t getPixelCode(uint8_t pixel) {
     return getSegCode(pixel + 1);
   }
 }
-uint32_t map(uint8_t s, uint8_t e, uint32_t cs, uint32_t ce) {
-  uint8_t r1 = (cs & 0xff0000) >> 16;
-  uint8_t g1 = (cs & 0x00ff00) >> 8;
-  uint8_t b1 = (cs & 0x0000ff);
-  uint8_t r2 = (ce & 0xff0000) >> 16;
-  uint8_t g2 = (ce & 0x00ff00) >> 8;
-  uint8_t b2 = (ce & 0x0000ff);
-  uint32_t r = map(step, s, e, r1, r2);
-  uint16_t g = map(step, s, e, g1, g2);
-  uint8_t b = map(step, s, e, b1, b2);
-  return r << 16 | g << 8 | b;
-}
 
 uint32_t pulse(uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4) {
   switch (step) {
   case 0:
     return c1;
   case 1 ... 63:
-    return map(0, 64, c1, c2);
+    return mapColor(step, 0, 64, c1, c2);
   case 64:
     return c2;
   case 65 ... 127:
-    return map(64, 128, c2, c3);
+    return mapColor(step, 64, 128, c2, c3);
   case 128:
     return c3;
   case 129 ... 195:
-    return map(128, 196, c3, c4);
+    return mapColor(step, 128, 196, c3, c4);
   case 196:
     return c4;
   case 197 ... 255:
-    return map(196, 255, c4, c1);
+    return mapColor(step, 196, 255, c4, c1);
   }
 }
 
 uint32_t pulse(uint32_t c1, uint32_t c2) { return pulse(c1, c2, c1, c2); }
 
-uint32_t pulse(uint8_t code, Adafruit_NeoPixel *strip) {
+uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel *strip) {
+  uint8_t code = getPixelCode(pixel);
   switch (code) {
   default:
   case 0:
@@ -185,8 +177,37 @@ uint32_t pulse(uint8_t code, Adafruit_NeoPixel *strip) {
   }
 }
 
-uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
+uint32_t chenille(uint8_t pixel, uint32_t color, uint32_t background) {
+  if (pixel <= step % 64 && pixel > step % 64 - 8) {
+    return mapColor(step % 64 - pixel, 0, 8, color, background);
+  }
+  return background;
+}
+
+uint32_t chenille(uint8_t pixel, Adafruit_NeoPixel *strip) {
   uint8_t code = getPixelCode(pixel);
+  switch (code) {
+  default:
+  case 0:
+    return data.ground.hsv(strip);
+  case 1:
+    return chenille(pixel, data.playerA.hsv(strip), data.ground.hsv(strip));
+  case 2:
+    return chenille(pixel, data.playerB.hsv(strip), data.ground.hsv(strip));
+  case 3:
+    return chenille(pixel, data.bothPlayerHsv(strip), data.ground.hsv(strip));
+  case 4:
+    return data.border.hsv(strip);
+  case 5:
+    return chenille(pixel, data.playerA.hsv(strip), data.border.hsv(strip));
+  case 6:
+    return chenille(pixel, data.playerB.hsv(strip), data.border.hsv(strip));
+  case 7:
+    return chenille(pixel, data.bothPlayerHsv(strip), data.border.hsv(strip));
+  }
+}
+
+uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
   uint8_t mode = data.groundMode();
   if (pixel > GROUND_STRIP_LEN)
     mode = data.borderMode();
@@ -194,9 +215,9 @@ uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
   switch (mode) {
   default:
   case STRIP_MODE_PULSE:
-    return pulse(code, strip);
+    return pulse(pixel, strip);
   case STRIP_MODE_CHENILL:
-    return pulse(code, strip);
+    return chenille(pixel, strip);
   }
 }
 

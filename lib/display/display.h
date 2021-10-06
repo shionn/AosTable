@@ -49,6 +49,7 @@ public:
 private:
   void drawBorder();
   void drawGrid();
+  String getAnimName(uint8_t anim);
 };
 
 #endif
