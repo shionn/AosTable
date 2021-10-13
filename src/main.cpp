@@ -10,9 +10,9 @@ Data data = Data();
 Display display = Display(&data);
 
 Adafruit_NeoPixel border =
-    Adafruit_NeoPixel(BORDER_STRIP_LEN, 2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel(BORDER_STRIP_LEN, 2, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel ground =
-    Adafruit_NeoPixel(GROUND_STRIP_LEN, 3, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel(GROUND_STRIP_LEN, 3, NEO_GRB + NEO_KHZ800);
 
 uint8_t step = 0; // step d'affichage du ruban de 0 a 255
 
@@ -23,7 +23,7 @@ void setup() {
   Serial.begin(9600);
 
   for (uint8_t pixel = 0; pixel < max(BORDER_STRIP_LEN, GROUND_STRIP_LEN);
-       pixel++) {
+    pixel++) {
     border.fill(border.Color(0, 0, 0));
     ground.fill(ground.Color(0, 0, 0));
     if (pixel < BORDER_STRIP_LEN) {
@@ -91,12 +91,9 @@ PROGMEM const uint8_t STRIP_DATA_B[]{
     8,  5,  11, 14, 20, 31, 32, 33, 34,                 //
     12, 17, 18, 19, 20, 25, 26, 27, 28, 29, 30, 39, 40, //
     12, 17, 18, 19, 20, 31, 32, 33, 34, 35, 36, 37, 38, //
-    18, 2,  3,  10, 11, 13, 16, 22, 23, 25, 26, 27, 28,
-    29, 30, 31, 38, 39, 40, //
-    18, 2,  3,  10, 11, 14, 15, 21, 24, 30, 31, 32, 33,
-    34, 35, 36, 37, 38, 39, //
-    24, 2,  3,  10, 11, 14, 15, 22, 23, 25, 26, 27, 28,
-    29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,     //
+    18, 2,  3,  10, 11, 13, 16, 22, 23, 25, 26, 27, 28, 29, 30, 31, 38, 39, 40, //
+    18, 2,  3,  10, 11, 14, 15, 21, 24, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, //
+    24, 2,  3,  10, 11, 14, 15, 22, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,     //
     12, 17, 18, 19, 20, 31, 32, 33, 34, 35, 36, 37, 38, //
     12, 17, 18, 19, 20, 25, 26, 27, 28, 29, 30, 39, 40, //
 };
@@ -152,7 +149,7 @@ uint32_t pulse(uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4) {
 
 uint32_t pulse(uint32_t c1, uint32_t c2) { return pulse(c1, c2, c1, c2); }
 
-uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel *strip) {
+uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel* strip) {
   uint8_t code = getPixelCode(pixel);
   switch (code) {
   default:
@@ -164,7 +161,7 @@ uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel *strip) {
     return pulse(data.playerB.hsv(strip), data.ground.hsv(strip));
   case 3:
     return pulse(data.playerA.hsv(strip), data.ground.hsv(strip),
-                 data.playerB.hsv(strip), data.ground.hsv(strip));
+      data.playerB.hsv(strip), data.ground.hsv(strip));
   case 4:
     return data.border.hsv(strip);
   case 5:
@@ -173,7 +170,7 @@ uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel *strip) {
     return pulse(data.playerB.hsv(strip), data.border.hsv(strip));
   case 7:
     return pulse(data.playerA.hsv(strip), data.border.hsv(strip),
-                 data.playerB.hsv(strip), data.border.hsv(strip));
+      data.playerB.hsv(strip), data.border.hsv(strip));
   }
 }
 
@@ -184,7 +181,7 @@ uint32_t chenille(uint8_t pixel, uint32_t color, uint32_t background) {
   return background;
 }
 
-uint32_t chenille(uint8_t pixel, Adafruit_NeoPixel *strip) {
+uint32_t chenille(uint8_t pixel, Adafruit_NeoPixel* strip) {
   uint8_t code = getPixelCode(pixel);
   switch (code) {
   default:
@@ -207,7 +204,7 @@ uint32_t chenille(uint8_t pixel, Adafruit_NeoPixel *strip) {
   }
 }
 
-uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel *strip) {
+uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel* strip) {
   uint8_t mode = data.groundMode();
   if (pixel > GROUND_STRIP_LEN)
     mode = data.borderMode();
@@ -227,7 +224,7 @@ void updateStrips() {
   }
   for (uint8_t pixel = 0; pixel < BORDER_STRIP_LEN; pixel++) {
     border.setPixelColor(pixel,
-                         getPixelColor(GROUND_STRIP_LEN + pixel, &border));
+      getPixelColor(GROUND_STRIP_LEN + pixel, &border));
   }
   ground.show();
   border.show();

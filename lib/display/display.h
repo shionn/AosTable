@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <data.h>
+
 #include <ssd1309.h>
 
 #define BOX_W 24
@@ -35,13 +36,13 @@
 class Display {
 private:
   Ssd1309 lcd = Ssd1309(10, 9, 8);
-  Data *data;
+  Data* data;
   uint8_t mode = MODE_MAIN;
   uint8_t cursor = 0;
   uint16_t analog = 0;
 
 public:
-  Display(Data *data);
+  Display(Data* data);
   void init();
   void print();
   void update();
@@ -49,6 +50,7 @@ public:
 private:
   void drawBorder();
   void drawGrid();
+  void drawMode();
   String getAnimName(uint8_t anim);
 };
 

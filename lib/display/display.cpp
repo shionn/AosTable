@@ -1,7 +1,7 @@
 
 #include <display.h>
 
-Display::Display(Data *data) { this->data = data; }
+Display::Display(Data* data) { this->data = data; }
 
 void Display::init() {
   pinMode(7, INPUT_PULLUP);
@@ -36,10 +36,7 @@ String Display::getAnimName(uint8_t anim) {
   }
 }
 
-void Display::print() {
-  lcd.clearBuffer();
-  drawBorder();
-
+void Display::drawMode() {
   switch (mode) {
 
   case MODE_SELECT_MAP:
@@ -121,8 +118,20 @@ void Display::print() {
     lcd.print(6, 26, F("Couleur Ambiance"));
     lcd.print(6, 34, F("Animation"));
   }
+}
 
-  lcd.display();
+uint8_t speed = 0;
+
+void Display::print() {
+  lcd.startRankDisplay();
+  while (lcd.haveRankToDisplay()) {
+    lcd.clearBuffer();
+    lcd.print(90, 50, String(speed));
+    drawBorder();
+    drawMode();
+    lcd.display();
+  }
+  speed++;
 }
 
 void Display::update() {

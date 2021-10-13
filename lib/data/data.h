@@ -6,8 +6,8 @@
 #include <Arduino.h>
 #include <color.h>
 
-#define BORDER_STRIP_LEN 10
-#define GROUND_STRIP_LEN 100
+#define BORDER_STRIP_LEN 200
+#define GROUND_STRIP_LEN 200
 
 #define STRIP_MODE_PULSE 0
 #define STRIP_MODE_CHENILL 1
@@ -40,14 +40,14 @@ class HSV {
 public:
   uint16_t h, s, v;
   HSV(uint16_t h, uint8_t s, uint8_t v);
-  uint32_t hsv(Adafruit_NeoPixel *strip);
+  uint32_t hsv(Adafruit_NeoPixel* strip);
 };
 
 class Data {
 private:
   // 0b00110000 : strip ground
   // 0b11000000 : strip border
-  uint8_t mode = 0b00000011;
+  uint8_t mode = 0b00000000;
 
 public:
   uint8_t scenario = 3;
@@ -61,7 +61,7 @@ public:
   void groundMode(uint8_t ground);
   uint8_t borderMode();
   void borderMode(uint8_t border);
-  uint32_t bothPlayerHsv(Adafruit_NeoPixel *strip);
+  uint32_t bothPlayerHsv(Adafruit_NeoPixel* strip);
 };
 
 #endif
