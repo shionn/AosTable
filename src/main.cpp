@@ -1,7 +1,7 @@
-#include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
 
-#include <MemoryFree.h>
+// #include <MemoryFree.h>
 #include <color.h>
 #include <data.h>
 #include <display.h>
@@ -49,7 +49,6 @@ void setup() {
     ground.show();
     delay(50);
   }
-  Serial.println(freeMemory());
 }
 
 PROGMEM const uint8_t STRIP_DATA_A[]{
@@ -105,7 +104,7 @@ uint8_t getSegCode(uint8_t seg) {
     iA += pgm_read_byte(&(STRIP_DATA_A[iA])) + 1;
     iB += pgm_read_byte(&(STRIP_DATA_B[iB])) + 1;
   }
-  uint8_t result = seg > GROUND_STRIP_LEN ? 4 : 0;
+  uint8_t result = seg > 24 ? 4 : 0; // 24 : nombre de seg au sol
   for (uint8_t i = 0; i < pgm_read_byte(&(STRIP_DATA_A[iA])); i++) {
     if (pgm_read_byte(&(STRIP_DATA_A[iA + i + 1])) == seg)
       result += 1;
@@ -117,12 +116,68 @@ uint8_t getSegCode(uint8_t seg) {
   return result;
 }
 
-uint8_t getPixelCode(uint8_t pixel) {
+uint8_t getPixelCode(uint16_t pixel) {
   switch (pixel) {
-  case GROUND_STRIP_LEN ... GROUND_STRIP_LEN + BORDER_STRIP_LEN:
-    return getSegCode(pixel - GROUND_STRIP_LEN + 25);
+    case 0 ... 7 : return getSegCode(1);
+    case 8 : return getSegCode(1) | getSegCode(2) | getSegCode(23) | getSegCode(24);
+    case 9 ... 15 : return getSegCode(2);
+    case 16 : return getSegCode(2) | getSegCode(3) | getSegCode(17) | getSegCode(18);
+    case 17 ... 23 : return getSegCode(3);
+    case 24 : return getSegCode(3) | getSegCode(4) | getSegCode(15) | getSegCode(16);
+    case 25 ... 32 : return getSegCode(4);
+    case 33 ... 40 : return getSegCode(5);
+    case 41 : return getSegCode(5) | getSegCode(6) | getSegCode(14) | getSegCode(15);
+    case 42 ... 48 : return getSegCode(6);
+    case 49 : return getSegCode(6) | getSegCode(7) | getSegCode(18) | getSegCode(19);
+    case 50 ... 56 : return getSegCode(7);
+    case 57 : return getSegCode(7) | getSegCode(8) | getSegCode(22) | getSegCode(23);
+    case 58 ... 65 : return getSegCode(8);
+    case 66 ... 73 : return getSegCode(9);
+    case 74 : return getSegCode(9) | getSegCode(10) | getSegCode(21) | getSegCode(22);
+    case 75 ... 81 : return getSegCode(10);
+    case 82 : return getSegCode(10) | getSegCode(11) | getSegCode(19) | getSegCode(20);
+    case 83 ... 89 : return getSegCode(11);
+    case 90 : return getSegCode(11) | getSegCode(12) | getSegCode(13) | getSegCode(14);
+    case 91 ... 98 : return getSegCode(12);
+    case 99 ... 109 : return getSegCode(13);
+    case 110 ... 120 : return getSegCode(14);
+    case 121 ... 131 : return getSegCode(15);
+    case 132 ... 142 : return getSegCode(16);
+    case 143 ... 153 : return getSegCode(17);
+    case 154 ... 164 : return getSegCode(18);
+    case 165 ... 175 : return getSegCode(19);
+    case 176 ... 186 : return getSegCode(20);
+    case 187 ... 197 : return getSegCode(21);
+    case 198 ... 208 : return getSegCode(22);
+    case 209 ... 219 : return getSegCode(23);
+    case 220 ... 230 : return getSegCode(24);
+    //
+    case 231 ... 241 : return getSegCode(25);
+    case 242 : return getSegCode(25) | getSegCode(26);
+    case 243 ... 253 : return getSegCode(26);
+    case 254 ... 264 : return getSegCode(27);
+    case 265 : return getSegCode(27) | getSegCode(28);
+    case 266 ... 276 : return getSegCode(28);
+    case 277 ... 284 : return getSegCode(29);
+    case 285 : return getSegCode(29) | getSegCode(30);
+    case 286 ... 293 : return getSegCode(30);
+    case 294 ... 301 : return getSegCode(31);
+    case 302 : return getSegCode(31) | getSegCode(32);
+    case 303 ... 310 : return getSegCode(32);
+    case 311 ... 321 : return getSegCode(33);
+    case 322 : return getSegCode(33) | getSegCode(34);
+    case 323 ... 333 : return getSegCode(34);
+    case 334 ... 344 : return getSegCode(35);
+    case 345 : return getSegCode(35) | getSegCode(36);
+    case 346 ... 356 : return getSegCode(36);
+    case 357 ... 364 : return getSegCode(37);
+    case 365 : return getSegCode(37) | getSegCode(38);
+    case 366 ... 373 : return getSegCode(38);
+    case 374 ... 381 : return getSegCode(39);
+    case 382 : return getSegCode(39) | getSegCode(40);
+    case 383 ... 390 : return getSegCode(40);
   default:
-    return getSegCode(pixel + 1);
+    return getSegCode(0);
   }
 }
 
@@ -149,7 +204,7 @@ uint32_t pulse(uint32_t c1, uint32_t c2, uint32_t c3, uint32_t c4) {
 
 uint32_t pulse(uint32_t c1, uint32_t c2) { return pulse(c1, c2, c1, c2); }
 
-uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel* strip) {
+uint32_t pulse(uint16_t pixel, Adafruit_NeoPixel* strip) {
   uint8_t code = getPixelCode(pixel);
   switch (code) {
   default:
@@ -174,14 +229,14 @@ uint32_t pulse(uint8_t pixel, Adafruit_NeoPixel* strip) {
   }
 }
 
-uint32_t chenille(uint8_t pixel, uint32_t color, uint32_t background) {
-  if (pixel <= step % 64 && pixel > step % 64 - 8) {
-    return mapColor(step % 64 - pixel, 0, 8, color, background);
+uint32_t chenille(uint16_t pixel, uint32_t color, uint32_t background) {
+  if (pixel % 32 <= step && pixel % 32 > step  - 8) {
+    return mapColor(step - pixel %32, 0, 8, color, background);
   }
   return background;
 }
 
-uint32_t chenille(uint8_t pixel, Adafruit_NeoPixel* strip) {
+uint32_t chenille(uint16_t pixel, Adafruit_NeoPixel* strip) {
   uint8_t code = getPixelCode(pixel);
   switch (code) {
   default:
@@ -204,7 +259,7 @@ uint32_t chenille(uint8_t pixel, Adafruit_NeoPixel* strip) {
   }
 }
 
-uint32_t getPixelColor(uint8_t pixel, Adafruit_NeoPixel* strip) {
+uint32_t getPixelColor(uint16_t pixel, Adafruit_NeoPixel* strip) {
   uint8_t mode = data.groundMode();
   if (pixel > GROUND_STRIP_LEN)
     mode = data.borderMode();

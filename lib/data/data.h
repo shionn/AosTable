@@ -6,8 +6,8 @@
 #include <Arduino.h>
 #include <color.h>
 
-#define BORDER_STRIP_LEN 200
-#define GROUND_STRIP_LEN 200
+#define BORDER_STRIP_LEN 160
+#define GROUND_STRIP_LEN 231
 
 #define STRIP_MODE_PULSE 0
 #define STRIP_MODE_CHENILL 1
@@ -53,7 +53,7 @@ public:
   uint8_t scenario = 3;
   HSV playerA = HSV(0, 255, 32);
   HSV playerB = HSV(170 << 8, 255, 32);
-  HSV ground = HSV(0, 0, 0);
+  HSV ground = HSV(0, 255, 0);
   HSV border = HSV(0, 0, 32);
 
 public:

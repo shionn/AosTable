@@ -120,25 +120,21 @@ void Display::drawMode() {
   }
 }
 
-uint8_t speed = 0;
 
 void Display::print() {
-  lcd.startRankDisplay();
-  while (lcd.haveRankToDisplay()) {
-    lcd.clearBuffer();
-    lcd.print(90, 50, String(speed));
-    drawBorder();
-    drawMode();
-    lcd.display();
-  }
-  speed++;
+  if (!lcd.haveRankToDisplay())
+    lcd.startRankDisplay();
+  lcd.clearBuffer();
+  drawBorder();
+  drawMode();
+  lcd.display();
 }
 
 void Display::update() {
   bool press = !digitalRead(7);
   while (!digitalRead(7))
     delay(50);
-  analog = (analog * 4 + analogRead(A0)) / 5;
+  analog = (analog * 3 + analogRead(A0)) / 4;
 
   switch (mode) {
 
@@ -195,17 +191,17 @@ void Display::update() {
       mode = MODE_SELECT_BG;
     break;
   case MODE_BORDER_H:
-    data->ground.h = analog << 6;
+    data->border.h = analog << 6;
     if (press)
       mode = MODE_SELECT_BG;
     break;
   case MODE_BORDER_S:
-    data->ground.s = analog >> 2;
+    data->border.s = analog >> 2;
     if (press)
       mode = MODE_SELECT_BG;
     break;
   case MODE_BORDER_V:
-    data->ground.v = analog >> 2;
+    data->border.v = analog >> 2;
     if (press)
       mode = MODE_SELECT_BG;
     break;
